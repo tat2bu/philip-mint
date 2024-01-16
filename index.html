@@ -58,7 +58,7 @@
                 transform: scaleX(1);
                 width: 176px;
                 height: 136px;
-                margin-bottom: 20px;
+                margin: 10px 0 10px 0;
                 background-repeat: no-repeat;
                 background-size: contain;
                 background-position: center center;
@@ -156,14 +156,14 @@
                     const position = $(".frame-background").position()
                     let x = null;
                     if (position.top === 25) {
-                        if (position.left <= 185)  x = 1;
-                        else if (position.left <= 345) x = 2;
-                        else if (position.left <= 540) x = 3;
+                        if (position.left <= 165)  x = 1;
+                        else if (position.left <= 325) x = 2;
+                        else if (position.left <= 520) x = 3;
                         else x = 4;
                     } else if (position.top === 180) {
-                        if (position.left >= 540)  x = 8;
-                        else if (position.left >= 345) x = 7;
-                        else if (position.left >= 145) x = 6;
+                        if (position.left >= 480)  x = 8;
+                        else if (position.left >= 265) x = 7;
+                        else if (position.left >= 125) x = 6;
                         else x = 5;
                     }
                     if (x) {
