@@ -40,7 +40,11 @@
                 width: 100%;
                 justify-content: center;
             }
+            .frame.shown {
+                visibility: visible;
+            }
             .frame {
+                visibility: hidden;
                 width: 156px;
                 height: 156px;
                 position: absolute;
@@ -105,6 +109,7 @@
                 const url = `./original_punks_images/punk${id}.png`
                 return url
             }
+            let running = false
 
             const phunkToFrame = [
                 [15, 55],
@@ -146,7 +151,11 @@
             }
 
             function startFrameAnimation() {
-                animateFrameTo(0, duration)
+                running = true
+                $(".frame").addClass("shown")
+                setTimeout(() => {
+                    animateFrameTo(0, duration)
+                }, 700)
             }
 
             window.onload = () => {
@@ -186,6 +195,7 @@
                 console.log($("#phunk1").position(), $("#phunk8").position())
 
                 setInterval(() => {
+                    if (!running) return
                     const position = $(".frame-background").position()
                     console.log(Math.floor(position.top))
                     let x = null;
