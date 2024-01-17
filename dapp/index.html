@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="preload" href="04b30.woff2" as="font" type="font/woff2" crossorigin>
+        <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
         <style>
             @font-face {
                 font-family: '04b';
@@ -13,9 +14,10 @@
             }
 
             body {
-                background-color: #1D1C1C
+                background-color: #2d2a2a
             }
             .start {
+                visibility: hidden;
                 cursor: pointer;
                 color: #1D1C1C;
                 padding: 15px 25px;
@@ -84,6 +86,7 @@
                 transform: scaleX(-1);
             }
             .images li {
+                background-image: url('philip.png');
                 display: block;
                 transition: transform 0.3s ease;
                 transition-delay: 0s;
@@ -150,50 +153,50 @@
                 })
             }
 
+            function preload(arrayOfImages) {
+                $(arrayOfImages).each(function(){
+                    $('<img/>')[0].src = this;
+                });
+            }
+
             function startFrameAnimation() {
                 running = true
+                $("body").addClass("running")
                 $(".frame").addClass("shown")
                 setTimeout(() => {
                     animateFrameTo(0, duration)
                 }, 700)
             }
 
+            const phunks = [
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk(),
+                getRandomPhunk()
+            ]
+            preload(phunks)
+
             window.onload = () => {
-                
-                $("#phunk1").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
 
-                $("#phunk2").css({
-                    "background-image": `url(${getRandomPhunk()})`,
-                })
+                for (let i = 0; i < 8; i++) {
+                    const id = `#phunk${i+1}`
+                    $(id).data("phunk", phunks[i])
+                    $(id).addClass("flipped").css("background-image", `url(${phunks[i]})`)
+                }
 
-                $("#phunk3").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
+                setTimeout(() => {
+                    $(".images li").each((index, item) => {
+                        setTimeout(() => {
+                            $(item).removeClass("flipped").css("background-image", `url('philip.png')`)
+                        }, index*150)
+                    })
+                    setTimeout(() => $(".start").css("visibility", "visible"), 1200)
+                }, 1400)
                 
-                $("#phunk4").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
-                
-                $("#phunk5").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
-                
-                $("#phunk6").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
-                
-                $("#phunk7").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
-                
-                $("#phunk8").css({
-                    "background-image": `url(${getRandomPhunk()})`
-                })
-
-                console.log($("#phunk1").position(), $("#phunk8").position())
-
                 setInterval(() => {
                     if (!running) return
                     const position = $(".frame-background").position()
@@ -212,14 +215,18 @@
                     }
                     if (x) {
                         const id = `#phunk${x}`
-                        $(".images li").removeClass("flipped")
-                        $(id).addClass("flipped")
+                        $(".images li").removeClass("flipped").css("background-image", `url('philip.png')`)
+                        $(id).addClass("flipped").css("background-image", `url(${$(id).data("phunk")})`)
                         console.log(position, id)
                     }
                 }, 1000/25)
 
-                $(".start").click(() => {
+                $(".start").click(async () => {
                     $(".start").hide()
+                    const provider = new ethers.providers.Web3Provider(window.ethereum)
+                    const account = await provider.send("eth_requestAccounts", [])
+                    const signer = provider.getSigner()
+                    
                     startFrameAnimation()
                 })
             }
