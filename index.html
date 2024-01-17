@@ -1,9 +1,26 @@
 <!doctype html>
 <html>
     <head>
+        <link rel="preload" href="04b30.woff2" as="font" type="font/woff2" crossorigin>
         <style>
+            @font-face {
+                font-family: '04b';
+                src: url('04b30.woff2') format('woff2'),
+                    url('04b30.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+
             body {
                 background-color: #1D1C1C
+            }
+            h1 {
+                text-align: center;
+                font-family: '04b';
+                font-weight: normal;
+                font-style: normal;
+                color: #676052;                
             }
             .container {
                 margin: 0 auto;
@@ -49,7 +66,6 @@
             }
             .images li.flipped {
                 transform: scaleX(-1);
-                transition-delay: 0s;
             }
             .images li {
                 display: block;
@@ -78,40 +94,47 @@
                 return url
             }
 
-            function animateFrameTo(x, y, duration, callback) {
-                $(".frame").animate({
-                    top: `${x}px`,
-                    left: `${y}px`
-                }, duration, () => {
-                    if (frameBreakpoints.length) {
-                        const breakPoints = frameBreakpoints.pop()
-                        animateFrameTo(breakPoints[0], breakPoints[1], breakPoints[2])
-                    }
+            const phunkToFrame = [
+                [15, 55],
+                [15, 225],
+                [15, 405],
+                [15, 580],
+                [170, 580],
+                [170, 405],
+                [170, 225],
+                [170, 55],
+            ]
+
+            let duration = 80, decay = 1.1
+            let ticks = 8*3+Math.floor(Math.random()*8)
+            function animateFrameTo(phunkOffset, duration) {
+                const id = `#phunk${phunkOffset+1}`
+                console.log('animateFrameTo', id, duration)
+                const x = phunkToFrame[phunkOffset][0]
+                const y = phunkToFrame[phunkOffset][1]
+
+                $(".frame").each((index, elem) => {
+                                    
+                    $(elem).animate({
+                        top: `${x}px`,
+                        left: `${y}px`
+                    }, duration, () => {
+                        if (!elem.classList.contains("frame-inner")) return
+
+                        phunkOffset++
+                        if (phunkOffset > 7) {
+                            phunkOffset = 0
+                        }
+                        ticks--
+                        if (ticks > 0) {
+                            animateFrameTo(phunkOffset, duration*decay)
+                        }
+                    })
                 })
             }
-            const shortDuration = 400, longDuration= 800, decay = 0.8
-            const frameBreakpoints = [
-                [15, 580, longDuration],
-                [170, 580, shortDuration],
-                [170, 55, longDuration/decay],
-                [15, 55, shortDuration/decay],
-
-                [15, 580, longDuration/decay/decay],
-                [170, 580, shortDuration/decay/decay],
-                [170, 55, longDuration/decay/decay/decay],
-                [15, 55, shortDuration/decay/decay/decay],
-
-                [15, 580, longDuration/decay/decay/decay/decay/decay],
-                [170, 580, shortDuration/decay/decay/decay/decay/decay],
-                [170, 55, longDuration/decay/decay/decay/decay/decay/decay],
-                [15, 55, shortDuration/decay/decay/decay/decay/decay/decay],
-                [15, 405, shortDuration/decay/decay/decay/decay/decay/decay/decay/decay/decay/decay],
-
-            ].reverse()
 
             function startFrameAnimation() {
-                const breakPoints = frameBreakpoints.pop()
-                animateFrameTo(breakPoints[0], breakPoints[1], breakPoints[2])
+                animateFrameTo(0, duration)
             }
 
             window.onload = () => {
@@ -154,13 +177,14 @@
 
                 setInterval(() => {
                     const position = $(".frame-background").position()
+                    console.log(Math.floor(position.top))
                     let x = null;
                     if (position.top === 25) {
                         if (position.left <= 165)  x = 1;
                         else if (position.left <= 325) x = 2;
                         else if (position.left <= 520) x = 3;
                         else x = 4;
-                    } else if (position.top === 180) {
+                    } else if (position.top > 150) {
                         if (position.left >= 480)  x = 8;
                         else if (position.left >= 265) x = 7;
                         else if (position.left >= 125) x = 6;
@@ -177,6 +201,8 @@
         </script>
     </head>
     <body>
+        <h1>Free Philip lottery</h1>
+            
         <div class="container">
             <div class="images-container">
 
