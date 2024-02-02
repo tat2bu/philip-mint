@@ -1,3 +1,4 @@
+node_modules
 .env
 ./original_punks_images
 .DS_Store

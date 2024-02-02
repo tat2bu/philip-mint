@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@openzeppelin/merkle-tree": "^1.0.6",
+    "ethers": "5.2"
+  },
+  "scripts": {
+    "build": "browserify -p esmify app.js -o bundle.js"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "esmify": "^2.1.1"
+  }
+}
