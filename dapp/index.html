@@ -3,6 +3,7 @@
     <head>
         <link rel="preload" href="04b30.woff2" as="font" type="font/woff2" crossorigin>
         <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.x/dist/index.umd.js"></script>
         <style>
             @font-face {
                 font-family: '04b';
@@ -16,8 +17,20 @@
             body {
                 background-color: #2d2a2a
             }
+            .center {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);                
+            }
+            .firework {
+                position: absolute;
+                inset: 0;
+                z-index: 20;
+                pointer-events: none;
+            }
             .start {
-                visibility: hidden;
+                opacity: 0;
                 cursor: pointer;
                 color: #1D1C1C;
                 padding: 15px 25px;
@@ -27,20 +40,40 @@
                 margin-top: 40px;
                 display: inline-block;
                 background: #676052;
+                transition: all 0.3s ease, transform 0.2s ease;
+            }
+            .start.shown.disabled {
+                opacity: 0.5 !important;
+                transform: scale(1) !important;
+                background: #676052 !important;
+            }
+            .start.shown {
+                opacity: 1;
             }
             .start:hover {
                 background: #A9A9A9;
+                transform: scale(1.05)
             }
             h1 {
                 text-align: center;
                 font-family: '04b';
                 color: #676052;
+                font-size: 50px;
+                margin-bottom: 5px;
+            }
+            h1 span {
+                font-size: 40px;
             }
             .container {
                 margin: 0 auto;
                 display: flex;
                 width: 100%;
                 justify-content: center;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+            .container.shown {
+                opacity: 1;
             }
             .frame.shown {
                 visibility: visible;
@@ -108,32 +141,36 @@
         <script src="./bundle.js"></script>
     </head>
     <body>
-        <h1>Phree Philip lottery</h1>
-            
-        <div class="container">
-            <div class="images-container">
-
-                <div class="frame frame-inner">
+        
+        <div class="firework"></div>
+        <div class="center">
+            <h1>Phree Philip<br/><span>lottery</span></h1>
+            <div class="container">
+                <div class="images-container">
+    
+                    <div class="frame frame-inner">
+                    </div>
+                    <div class="frame frame-foreground">
+                    </div>
+                    <div class="frame frame-background">
+                    </div>                
+                    <ul class="images">
+                        <li id="phunk1"></li>
+                        <li id="phunk2"></li>
+                        <li id="phunk3"></li>
+                        <li id="phunk4"></li>
+                        <li id="phunk5"></li>
+                        <li id="phunk6"></li>
+                        <li id="phunk7"></li>
+                        <li id="phunk8"></li>
+                    </ul>
                 </div>
-                <div class="frame frame-foreground">
-                </div>
-                <div class="frame frame-background">
-                </div>                
-                <ul class="images">
-                    <li id="phunk1"></li>
-                    <li id="phunk2"></li>
-                    <li id="phunk3"></li>
-                    <li id="phunk4"></li>
-                    <li id="phunk5"></li>
-                    <li id="phunk6"></li>
-                    <li id="phunk7"></li>
-                    <li id="phunk8"></li>
-                </ul>
             </div>
+    
+            <div style="text-align: center;">
+                <a class="start">Start</a>
+            </div>            
         </div>
 
-        <div style="text-align: center;">
-            <a class="start">Start</a>
-        </div>
     </body>
 </html>

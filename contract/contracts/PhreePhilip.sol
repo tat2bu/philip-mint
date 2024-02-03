@@ -15,7 +15,7 @@ contract PhreePhilip is Ownable {
 
     bytes32 public merkleRoot = 0xa9b170e2aaa61cc4dab50771bd7bd8c69c4358e9ee216571a64ff1a36708ca52;
 
-    event PhilipMinted(uint256 indexed tokenId, address indexed destination);
+    event PhilipPhreed(uint256 indexed tokenId, address indexed destination);
 
     constructor(address initialOwner, address contractAddr, address treasuryWalletAddr) Ownable(initialOwner) {
         erc721contract = contractAddr;
@@ -32,7 +32,7 @@ contract PhreePhilip is Ownable {
         uint randomIndex = _getRand() % treasuryBalance;
         uint phunkId = philip.tokenOfOwnerByIndex(treasuryWallet, randomIndex);
         
-        emit PhilipMinted(phunkId, msg.sender);
+        emit PhilipPhreed(phunkId, msg.sender);
         claims[claimRound][msg.sender] = true;
         philip.transferFrom(treasuryWallet, msg.sender, phunkId);
         return phunkId;

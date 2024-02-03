@@ -148,17 +148,23 @@ const merkleTree = {
   "leafEncoding": ["address"]
 };
 const contractAddress = '0x55292579394EFa031d6bd425a43c53f93FDd06d9';
-function getRandomPhunk() {
-  const id = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  const url = `./original_punks_images/punk${id}.png`;
+function getRandomPhunkURL() {
+  const id = Math.floor(Math.random() * 10000).toString();
+  return getPhunkURL(id);
+}
+function getPhunkURL(id) {
+  const url = `./original_punks_images/punk${id.padStart(4, '0')}.png`;
   return url;
 }
 let running = false;
 let unlimited = true;
+let stopUnlimitedRequested = false;
 const phunkToFrame = [[15, 55], [15, 225], [15, 405], [15, 580], [170, 580], [170, 405], [170, 225], [170, 55]];
-let duration = 120,
+let duration = 180,
   decay = 1.1;
-let ticks = 8 * 3 + Math.floor(Math.random() * 8);
+let random = Math.floor(Math.random() * 8);
+let ticks = 8 * 2 + random + 2; // the 2 is needed to get the random part to start from 0 after some turns
+
 function animateFrameTo(phunkOffset, duration) {
   const id = `#phunk${phunkOffset + 1}`;
   // console.log('animateFrameTo', id, duration)
@@ -173,15 +179,24 @@ function animateFrameTo(phunkOffset, duration) {
       phunkOffset++;
       if (phunkOffset > 7) {
         phunkOffset = 0;
+        if (stopUnlimitedRequested) {
+          unlimited = false;
+          stopUnlimitedRequested = false;
+        }
       }
       if (!unlimited) ticks--;
       if (ticks > 0) {
         const newDuration = unlimited ? duration : duration * decay;
         animateFrameTo(phunkOffset, newDuration);
+      } else {
+        const container = document.querySelector('.firework');
+        const fireworks = new Fireworks.default(container);
+        fireworks.start();
       }
     });
   });
 }
+window.animateFrameTo = animateFrameTo;
 function preload(arrayOfImages) {
   $(arrayOfImages).each(function () {
     $('<img/>')[0].src = this;
@@ -195,26 +210,28 @@ function startFrameAnimation() {
     animateFrameTo(0, duration);
   }, 700);
 }
-const phunks = [getRandomPhunk(), getRandomPhunk(), getRandomPhunk(), getRandomPhunk(), getRandomPhunk(), getRandomPhunk(), getRandomPhunk(), getRandomPhunk()];
+const phunks = [getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL(), getRandomPhunkURL()];
 preload(phunks);
 window.onload = () => {
   for (let i = 0; i < 8; i++) {
     const id = `#phunk${i + 1}`;
-    $(id).data("phunk", phunks[i]);
-    $(id).addClass("flipped"); // .css("background-image", `url(${phunks[i]})`)
+    $(id).data("phunk", phunks[i]).attr(`data-phunk`, phunks[i]);
+    $(id).addClass("flipped");
   }
+  setTimeout(() => {
+    $(".container").addClass("shown");
+  }, 300);
   setTimeout(() => {
     $(".images li").each((index, item) => {
       setTimeout(() => {
-        $(item).removeClass("flipped").css("background-image", `url('philip.png')`);
-      }, index * 150);
+        $(item).removeClass("flipped").removeClass("hidden").css("background-image", `url('philip.png')`);
+      }, index * 150 + 100);
     });
-    setTimeout(() => $(".start").css("visibility", "visible"), 1200);
-  }, 1400);
+    setTimeout(() => $(".start").addClass("shown"), 1400);
+  }, 1200);
   setInterval(() => {
     if (!running) return;
     const position = $(".frame-background").position();
-    // console.log(Math.floor(position.top))
     let x = null;
     if (position.top === 25) {
       if (position.left <= 165) x = 1;else if (position.left <= 325) x = 2;else if (position.left <= 520) x = 3;else x = 4;
@@ -226,14 +243,16 @@ window.onload = () => {
       $(".images li").removeClass("flipped").css("background-image", `url('philip.png')`);
       $(id).addClass("flipped");
       if (!unlimited) $(id).css("background-image", `url(${$(id).data("phunk")})`);
-      // console.log(position, id)
     }
   }, 1000 / 25);
   window.ethereum.on("networkChanged", network => {
     window.reload();
   });
   $(".start").click(async () => {
-    $(".start").hide();
+    if ($(".start").hasClass("disabled")) {
+      return;
+    }
+    $(".start").addClass("disabled");
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const account = await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
@@ -242,7 +261,6 @@ window.onload = () => {
     const tree = _merkleTree.StandardMerkleTree.load(merkleTree);
     let proof = null;
     for (const [i, v] of tree.entries()) {
-      // console.log(i,v,account[0],v===account[0])
       if (v[0].toLowerCase() === account[0].toLowerCase()) {
         proof = tree.getProof(i);
       }
@@ -260,15 +278,19 @@ window.onload = () => {
       const receipt = await provider.getTransactionReceipt(transaction.hash);
       console.log(receipt);
       const phunkId = receipt.logs.filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0].topics[1];
-      const slot = ticks - 8 * 3;
-      console.log('minted', phunkId, parseInt(phunkId.substring(2), 16), 'ticks', ticks, 'slot', slot);
-      unlimited = false;
-
-      // receipt logs 0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815 then index 1
+      const phunkIdInt = parseInt(phunkId.substring(2), 16);
+      stopUnlimitedRequested = true;
+      // because the numbering is in the other way around for the bottom line
+      const id = random === 4 ? `#phunk8` : random === 5 ? `#phunk7` : random === 6 ? `#phunk6` : random === 7 ? `#phunk5` : `#phunk${random + 1}`;
+      const url = getPhunkURL(phunkIdInt.toString());
+      console.log('minted', id, phunkId, phunkIdInt, 'random', random, 'ticks', 'ticks');
+      $(id).data("phunk", url).attr(`data-phunk`, url);
     } catch (err) {
-      alert(err.error.message);
+      if (err.error && err.error.hasOwnProperty('message')) {
+        alert(err.error.message);
+      }
       console.error(err);
-      $(".start").css("visibility", "visible").show();
+      $(".start").removeClass("disabled");
       running = false;
       $("body").removeClass("running");
     }
