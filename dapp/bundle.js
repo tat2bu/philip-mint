@@ -156,7 +156,7 @@ function getRandomPhunk() {
 let running = false;
 let unlimited = true;
 const phunkToFrame = [[15, 55], [15, 225], [15, 405], [15, 580], [170, 580], [170, 405], [170, 225], [170, 55]];
-let duration = 80,
+let duration = 120,
   decay = 1.1;
 let ticks = 8 * 3 + Math.floor(Math.random() * 8);
 function animateFrameTo(phunkOffset, duration) {
@@ -260,7 +260,8 @@ window.onload = () => {
       const receipt = await provider.getTransactionReceipt(transaction.hash);
       console.log(receipt);
       const phunkId = receipt.logs.filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0].topics[1];
-      console.log('minted', phunkId);
+      const slot = ticks - 8 * 3;
+      console.log('minted', phunkId, parseInt(phunkId.substring(2), 16), 'ticks', ticks, 'slot', slot);
       unlimited = false;
 
       // receipt logs 0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815 then index 1

@@ -23,7 +23,7 @@ const phunkToFrame = [
     [170, 55],
 ]
 
-let duration = 80, decay = 1.1
+let duration = 120, decay = 1.1
 let ticks = 8*3+Math.floor(Math.random()*8)
 function animateFrameTo(phunkOffset, duration) {
     const id = `#phunk${phunkOffset+1}`
@@ -149,7 +149,6 @@ window.onload = () => {
         const contract = new ethers.Contract(contractAddress, ABI, signer)
         try {
             const transaction = await contract.mint(proof);
-
             startFrameAnimation()            
             await transaction.wait();
             console.log(transaction)
@@ -158,7 +157,8 @@ window.onload = () => {
             const phunkId = receipt.logs
                 .filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0]
                 .topics[1]
-            console.log('minted', phunkId)
+            const slot = ticks - (8*3)
+            console.log('minted', phunkId, parseInt(phunkId.substring(2), 16), 'ticks', ticks, 'slot', slot)
             unlimited = false
 
             // receipt logs 0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815 then index 1
