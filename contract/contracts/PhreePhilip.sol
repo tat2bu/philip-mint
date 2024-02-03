@@ -5,8 +5,9 @@ pragma solidity ^0.8.20;
 import "./interfaces/IPhunkToken.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract PhreePhilip is Ownable {
+contract PhreePhilip is Ownable, ReentrancyGuard {
     address erc721contract;
     address treasuryWallet;
     
@@ -22,7 +23,7 @@ contract PhreePhilip is Ownable {
         treasuryWallet = treasuryWalletAddr;
     }
 
-    function mint(bytes32[] memory proof) public returns(uint) {
+    function mint(bytes32[] memory proof) public nonReentrant returns(uint) {
         require(!claims[claimRound][msg.sender], "Already claimed");
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(msg.sender))));
         require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof.");
@@ -40,8 +41,7 @@ contract PhreePhilip is Ownable {
 
     function _getRand() internal view returns(uint256) {
         uint256 randNum = uint256(keccak256(abi.encodePacked(block.timestamp + block.prevrandao +  
-        ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) + block.number)));
-        
+            ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) + block.number)));
         return randNum;
     }
 
