@@ -50,12 +50,4 @@ contract PhreePhilip is Ownable {
         claimRound++;
     }
 
-    function getRandomPhunks() public view returns(uint) {
-        IPhunksToken philip = IPhunksToken(erc721contract);
-        uint treasuryBalance = philip.balanceOf(treasuryWallet);
-        uint randomIndex = _getRand() % treasuryBalance;
-
-        uint phunkId = philip.tokenOfOwnerByIndex(treasuryWallet, randomIndex);
-        return phunkId;
-    }
 }

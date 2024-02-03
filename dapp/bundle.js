@@ -147,23 +147,24 @@ const merkleTree = {
   }],
   "leafEncoding": ["address"]
 };
-const contractAddress = '0xd9Ee91aB0e7b0192A37f65ABc1FF89AFc151B24B';
+const contractAddress = '0x55292579394EFa031d6bd425a43c53f93FDd06d9';
 function getRandomPhunk() {
   const id = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
   const url = `./original_punks_images/punk${id}.png`;
   return url;
 }
 let running = false;
+let unlimited = true;
 const phunkToFrame = [[15, 55], [15, 225], [15, 405], [15, 580], [170, 580], [170, 405], [170, 225], [170, 55]];
 let duration = 80,
   decay = 1.1;
 let ticks = 8 * 3 + Math.floor(Math.random() * 8);
 function animateFrameTo(phunkOffset, duration) {
   const id = `#phunk${phunkOffset + 1}`;
-  console.log('animateFrameTo', id, duration);
+  // console.log('animateFrameTo', id, duration)
   const x = phunkToFrame[phunkOffset][0];
   const y = phunkToFrame[phunkOffset][1];
-  $(".frame").each((index, elem) => {
+  $(".frame").each((_, elem) => {
     $(elem).animate({
       top: `${x}px`,
       left: `${y}px`
@@ -173,9 +174,10 @@ function animateFrameTo(phunkOffset, duration) {
       if (phunkOffset > 7) {
         phunkOffset = 0;
       }
-      ticks--;
+      if (!unlimited) ticks--;
       if (ticks > 0) {
-        animateFrameTo(phunkOffset, duration * decay);
+        const newDuration = unlimited ? duration : duration * decay;
+        animateFrameTo(phunkOffset, newDuration);
       }
     });
   });
@@ -199,7 +201,7 @@ window.onload = () => {
   for (let i = 0; i < 8; i++) {
     const id = `#phunk${i + 1}`;
     $(id).data("phunk", phunks[i]);
-    $(id).addClass("flipped").css("background-image", `url(${phunks[i]})`);
+    $(id).addClass("flipped"); // .css("background-image", `url(${phunks[i]})`)
   }
   setTimeout(() => {
     $(".images li").each((index, item) => {
@@ -212,7 +214,7 @@ window.onload = () => {
   setInterval(() => {
     if (!running) return;
     const position = $(".frame-background").position();
-    console.log(Math.floor(position.top));
+    // console.log(Math.floor(position.top))
     let x = null;
     if (position.top === 25) {
       if (position.left <= 165) x = 1;else if (position.left <= 325) x = 2;else if (position.left <= 520) x = 3;else x = 4;
@@ -222,15 +224,16 @@ window.onload = () => {
     if (x) {
       const id = `#phunk${x}`;
       $(".images li").removeClass("flipped").css("background-image", `url('philip.png')`);
-      $(id).addClass("flipped").css("background-image", `url(${$(id).data("phunk")})`);
-      console.log(position, id);
+      $(id).addClass("flipped");
+      if (!unlimited) $(id).css("background-image", `url(${$(id).data("phunk")})`);
+      // console.log(position, id)
     }
   }, 1000 / 25);
+  window.ethereum.on("networkChanged", network => {
+    window.reload();
+  });
   $(".start").click(async () => {
     $(".start").hide();
-    window.ethereum.on("networkChanged", network => {
-      window.reload();
-    });
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const account = await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
@@ -239,11 +242,9 @@ window.onload = () => {
     const tree = _merkleTree.StandardMerkleTree.load(merkleTree);
     let proof = null;
     for (const [i, v] of tree.entries()) {
-      console.log(i, v, account[0], v === account[0]);
+      // console.log(i,v,account[0],v===account[0])
       if (v[0].toLowerCase() === account[0].toLowerCase()) {
         proof = tree.getProof(i);
-        console.log('Value:', v);
-        console.log('Proof:', proof);
       }
     }
     if (!proof) {
@@ -253,14 +254,22 @@ window.onload = () => {
     const contract = new ethers.Contract(contractAddress, ABI, signer);
     try {
       const transaction = await contract.mint(proof);
+      startFrameAnimation();
       await transaction.wait();
       console.log(transaction);
       const receipt = await provider.getTransactionReceipt(transaction.hash);
       console.log(receipt);
-      startFrameAnimation();
+      const phunkId = receipt.logs.filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0].topics[1];
+      console.log('minted', phunkId);
+      unlimited = false;
+
+      // receipt logs 0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815 then index 1
     } catch (err) {
       alert(err.error.message);
       console.error(err);
+      $(".start").css("visibility", "visible").show();
+      running = false;
+      $("body").removeClass("running");
     }
   });
 };

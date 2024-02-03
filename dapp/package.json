@@ -4,10 +4,12 @@
     "ethers": "5.2"
   },
   "scripts": {
-    "build": "browserify -p esmify app.js -o bundle.js"
+    "build": "browserify -p esmify app.js -o bundle.js",
+    "watch": "watchify -p esmify app.js -o bundle.js -v"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
-    "esmify": "^2.1.1"
+    "esmify": "^2.1.1",
+    "watchify": "^4.0.0"
   }
 }
