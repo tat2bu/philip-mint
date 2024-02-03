@@ -9,7 +9,6 @@ async function main() {
     maxFeePerGas: ethers.parseUnits('20', 'gwei'),
     maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei'),
   });
-  // 1,098,409
   const contract = await phunks.waitForDeployment();
   
   console.log('deployed', contract.target)

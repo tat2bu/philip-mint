@@ -2,7 +2,7 @@ import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
 const ABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"},{"internalType":"address","name":"contractAddr","type":"address"},{"internalType":"address","name":"treasuryWalletAddr","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":true,"internalType":"address","name":"destination","type":"address"}],"name":"PhilipMinted","type":"event"},{"inputs":[],"name":"getRandomPhunks","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"merkleRoot","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32[]","name":"proof","type":"bytes32[]"}],"name":"mint","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"root","type":"bytes32"}],"name":"setMerkleRoot","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 const merkleTree = {"format":"standard-v1","tree":["0xa9b170e2aaa61cc4dab50771bd7bd8c69c4358e9ee216571a64ff1a36708ca52","0xe642c85c823de95fd064b5f23afe89f66e51ed7ac03bae61341bce34e8027df1","0x0755311192af272ae8b8585a9e90fecb919abc05496bf44bc34c5883652f9175"],"values":[{"value":["0x35bfDe9cb65A010954B056c7Df26339539d5c3da"],"treeIndex":2},{"value":["0x516Fc698fb46506aA983a14F40b30c908d86Dc82"],"treeIndex":1}],"leafEncoding":["address"]}
-const contractAddress = '0x55292579394EFa031d6bd425a43c53f93FDd06d9'
+const contractAddress = '0x0a6B719524ff80c01bC4804e32b4F6497CB0aac3'
 
 function getRandomPhunkURL() {
     const id = Math.floor(Math.random()*10000).toString()
@@ -175,7 +175,7 @@ window.onload = () => {
             const receipt = await provider.getTransactionReceipt(transaction.hash);
             console.log(receipt)
             const phunkId = receipt.logs
-                .filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0]
+                .filter(l => l.topics[0] === "0x32dd7bdf9af0f300b46e907e075f2e53cb0f34041d6b036427c56d3949829c73")[0]
                 .topics[1]
             const phunkIdInt = parseInt(phunkId.substring(2), 16)
             stopUnlimitedRequested = true

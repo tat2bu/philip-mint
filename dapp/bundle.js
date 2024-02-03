@@ -147,7 +147,7 @@ const merkleTree = {
   }],
   "leafEncoding": ["address"]
 };
-const contractAddress = '0x55292579394EFa031d6bd425a43c53f93FDd06d9';
+const contractAddress = '0x0a6B719524ff80c01bC4804e32b4F6497CB0aac3';
 function getRandomPhunkURL() {
   const id = Math.floor(Math.random() * 10000).toString();
   return getPhunkURL(id);
@@ -277,7 +277,7 @@ window.onload = () => {
       console.log(transaction);
       const receipt = await provider.getTransactionReceipt(transaction.hash);
       console.log(receipt);
-      const phunkId = receipt.logs.filter(l => l.topics[0] === "0x50fb101533eb9f1824ee42912a609d8018ead3eb152dcb5ae2ee31b0c2c28815")[0].topics[1];
+      const phunkId = receipt.logs.filter(l => l.topics[0] === "0x32dd7bdf9af0f300b46e907e075f2e53cb0f34041d6b036427c56d3949829c73")[0].topics[1];
       const phunkIdInt = parseInt(phunkId.substring(2), 16);
       stopUnlimitedRequested = true;
       // because the numbering is in the other way around for the bottom line
