@@ -13,6 +13,7 @@ contract PhreePhilip is Ownable, ReentrancyGuard {
     
     uint private claimRound = 1;
     mapping(uint => mapping(address => bool)) private claims;
+    bool private mintDisabled = false;
 
     bytes32 private merkleRoot = 0xa9b170e2aaa61cc4dab50771bd7bd8c69c4358e9ee216571a64ff1a36708ca52;
 
@@ -24,6 +25,7 @@ contract PhreePhilip is Ownable, ReentrancyGuard {
     }
 
     function mint(bytes32[] memory proof) public nonReentrant returns(uint) {
+        require(!mintDisabled, "Mint temporaly disabled");
         require(!claims[claimRound][msg.sender], "Already claimed");
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(msg.sender))));
         require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof.");
@@ -43,6 +45,18 @@ contract PhreePhilip is Ownable, ReentrancyGuard {
         uint256 randNum = uint256(keccak256(abi.encodePacked(block.timestamp + block.prevrandao +  
             ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) + block.number)));
         return randNum;
+    }
+
+    function setContractAddress(address contractAddress) public onlyOwner {
+        erc721contract = contractAddress;
+    }
+
+    function setMintDisabled(bool disabled) public onlyOwner {
+        mintDisabled = disabled;
+    }
+
+    function setTreasuryWallet(address wallet) public onlyOwner {
+        treasuryWallet = wallet;
     }
 
     function setMerkleRoot(bytes32 root) public onlyOwner {
