@@ -15,7 +15,7 @@ contract PhreePhilip is Ownable, ReentrancyGuard {
     mapping(uint => mapping(address => bool)) private claims;
     bool private mintDisabled = false;
 
-    bytes32 private merkleRoot = 0xa9b170e2aaa61cc4dab50771bd7bd8c69c4358e9ee216571a64ff1a36708ca52;
+    bytes32 private merkleRoot = 0x3c91d7badd79187edd1fe30bca37ca355ec2fe12ae6af2582a10092c5fd70cae;
 
     event PhilipPhreed(uint256 indexed tokenId, address indexed destination);
 
