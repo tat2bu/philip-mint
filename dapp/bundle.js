@@ -166,6 +166,11 @@ let running = false;
 let unlimited = true;
 let stopUnlimitedRequested = false;
 const phunkToFrame = [[15, 55], [15, 225], [15, 405], [15, 580], [170, 580], [170, 405], [170, 225], [170, 55]];
+const urlParams = new URLSearchParams(window.location.search);
+const demo = urlParams.get('demo') === 'true';
+if (demo) {
+  alert('demo mode activated');
+}
 let duration = 180,
   decay = 1.1;
 let random = Math.floor(Math.random() * 8);
@@ -259,46 +264,53 @@ window.onload = () => {
       return;
     }
     $(".start").addClass("disabled");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const account = await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const chain = await provider.getNetwork();
-    console.log(account, chain);
-    const tree = _merkleTree.StandardMerkleTree.load(merkleTree);
-    let proof = null;
-    for (const [i, v] of tree.entries()) {
-      if (v[0].toLowerCase() === account[0].toLowerCase()) {
-        proof = tree.getProof(i);
+    if (!demo) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const account = await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const chain = await provider.getNetwork();
+      console.log(account, chain);
+      const tree = _merkleTree.StandardMerkleTree.load(merkleTree);
+      let proof = null;
+      for (const [i, v] of tree.entries()) {
+        if (v[0].toLowerCase() === account[0].toLowerCase()) {
+          proof = tree.getProof(i);
+        }
       }
-    }
-    if (!proof) {
-      alert(`Wallet ${account[0]} isn't eligible to mint!`);
-      return;
-    }
-    const contract = new ethers.Contract(contractAddress, ABI, signer);
-    try {
-      const transaction = await contract.mint(proof);
+      if (!proof) {
+        alert(`Wallet ${account[0]} isn't eligible to mint!`);
+        return;
+      }
+      const contract = new ethers.Contract(contractAddress, ABI, signer);
+      try {
+        const transaction = await contract.mint(proof);
+        startFrameAnimation();
+        await transaction.wait();
+        console.log(transaction);
+        const receipt = await provider.getTransactionReceipt(transaction.hash);
+        console.log(receipt);
+        const phunkId = receipt.logs.filter(l => l.topics[0] === "0x32dd7bdf9af0f300b46e907e075f2e53cb0f34041d6b036427c56d3949829c73")[0].topics[1];
+        const phunkIdInt = parseInt(phunkId.substring(2), 16);
+        stopUnlimitedRequested = true;
+        // because the numbering is in the other way around for the bottom line
+        const id = random === 4 ? `#phunk8` : random === 5 ? `#phunk7` : random === 6 ? `#phunk6` : random === 7 ? `#phunk5` : `#phunk${random + 1}`;
+        const url = getPhunkURL(phunkIdInt.toString());
+        console.log('minted', id, phunkId, phunkIdInt, 'random', random, 'ticks', 'ticks');
+        $(id).data("phunk", url).attr(`data-phunk`, url);
+      } catch (err) {
+        if (err.error && err.error.hasOwnProperty('message')) {
+          alert(err.error.message);
+        }
+        console.error(err);
+        $(".start").removeClass("disabled");
+        running = false;
+        $("body").removeClass("running");
+      }
+    } else {
       startFrameAnimation();
-      await transaction.wait();
-      console.log(transaction);
-      const receipt = await provider.getTransactionReceipt(transaction.hash);
-      console.log(receipt);
-      const phunkId = receipt.logs.filter(l => l.topics[0] === "0x32dd7bdf9af0f300b46e907e075f2e53cb0f34041d6b036427c56d3949829c73")[0].topics[1];
-      const phunkIdInt = parseInt(phunkId.substring(2), 16);
-      stopUnlimitedRequested = true;
-      // because the numbering is in the other way around for the bottom line
-      const id = random === 4 ? `#phunk8` : random === 5 ? `#phunk7` : random === 6 ? `#phunk6` : random === 7 ? `#phunk5` : `#phunk${random + 1}`;
-      const url = getPhunkURL(phunkIdInt.toString());
-      console.log('minted', id, phunkId, phunkIdInt, 'random', random, 'ticks', 'ticks');
-      $(id).data("phunk", url).attr(`data-phunk`, url);
-    } catch (err) {
-      if (err.error && err.error.hasOwnProperty('message')) {
-        alert(err.error.message);
-      }
-      console.error(err);
-      $(".start").removeClass("disabled");
-      running = false;
-      $("body").removeClass("running");
+      setTimeout(() => {
+        stopUnlimitedRequested = true;
+      }, 8000);
     }
   });
 };
