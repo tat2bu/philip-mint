@@ -1,5 +1,7 @@
 import Database from 'better-sqlite3'
 import dotenv from 'dotenv';
+import * as fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -45,9 +47,13 @@ async function main() {
             console.log(`${user.discord_username} ${biggest}`)
             granted.push(biggest)
         } else {
-            console.log(`-- ${user.discord_username} ${user.votes}`)
+            // console.log(`-- ${user.discord_username} ${user.votes}`)
         }
     }
+    
+    fs.writeFileSync(path.join(__dirname, 'wallets.json'), JSON.stringify(granted));
+
+    
 }
 
 function getOwnedTokens(wallet: string) {
