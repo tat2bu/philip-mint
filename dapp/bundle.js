@@ -153,7 +153,7 @@ const merkleTree = {
   }],
   "leafEncoding": ["address"]
 };
-const contractAddress = '0xb86c1E92D04D6206739fb2B891E313e429E2DF4F';
+const contractAddress = '0x7BB93915Bc524BcF1DdFbD0ccfe6Fbda2dEac782';
 function getRandomPhunkURL() {
   const id = Math.floor(Math.random() * 10000).toString();
   return getPhunkURL(id);
