@@ -17,7 +17,7 @@ async function main() {
 
   const phunks = await ethers.deployContract("PhreePhilip", 
   [owner, erc721contract, treasuryWallet], {
-    maxFeePerGas: ethers.parseUnits('26', 'gwei'),
+    maxFeePerGas: ethers.parseUnits('35', 'gwei'),
     maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei'),
   });
   const contract = await phunks.waitForDeployment();

@@ -1,4 +1,4 @@
-// contracts/GameItem.sol
+// Stay Phree, stay Phunky
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -34,6 +34,11 @@ contract PhreePhilip is Ownable, ReentrancyGuard {
         uint treasuryBalance = philip.balanceOf(treasuryWallet);
         uint randomIndex = _getRand() % treasuryBalance;
         uint phunkId = philip.tokenOfOwnerByIndex(treasuryWallet, randomIndex);
+        if (phunkId == 8348) {
+            require(treasuryBalance > 1, "No more Philip available.");
+            uint nextIndex = (randomIndex + 1) % treasuryBalance;
+            phunkId = philip.tokenOfOwnerByIndex(treasuryWallet, nextIndex);
+        }
         
         emit PhilipPhreed(phunkId, msg.sender);
         claims[claimRound][msg.sender] = true;
